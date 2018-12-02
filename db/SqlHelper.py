@@ -1,5 +1,8 @@
 # coding:utf-8
 import datetime
+import sys
+import time
+
 from sqlalchemy import Column, Integer, String, DateTime, Numeric, create_engine, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -16,23 +19,39 @@ sql操作的基类
 BaseModel = declarative_base()
 
 
-class Proxy(BaseModel):
-    __tablename__ = 'proxys'
+# class Proxy(BaseModel):
+#     __tablename__ = 'proxys'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     ip = Column(VARCHAR(16), nullable=False)
+#     port = Column(Integer, nullable=False)
+#     types = Column(Integer, nullable=False)
+#     protocol = Column(Integer, nullable=False, default=0)
+#     country = Column(VARCHAR(100), nullable=False)
+#     area = Column(VARCHAR(100), nullable=False)
+#     updatetime = Column(DateTime(), default=datetime.datetime.utcnow)
+#     speed = Column(Numeric(5, 2), nullable=False)
+#     score = Column(Integer, nullable=False, default=DEFAULT_SCORE)
+
+
+class mssProxy(BaseModel):
+    __tablename__ = 'y_vpn_free_proxy'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ip = Column(VARCHAR(16), nullable=False)
-    port = Column(Integer, nullable=False)
-    types = Column(Integer, nullable=False)
-    protocol = Column(Integer, nullable=False, default=0)
-    country = Column(VARCHAR(100), nullable=False)
-    area = Column(VARCHAR(100), nullable=False)
+    ip = Column(VARCHAR(15), nullable=True)
+    port = Column(VARCHAR(6), nullable=True)
+    protocol = Column(VARCHAR(20), nullable=True)
+    anonymous = Column(VARCHAR(50), nullable=True)
+    delay = Column(Integer, nullable=True)
     updatetime = Column(DateTime(), default=datetime.datetime.utcnow)
-    speed = Column(Numeric(5, 2), nullable=False)
+    verifytime = Column(DateTime(), default=datetime.datetime.utcnow)
     score = Column(Integer, nullable=False, default=DEFAULT_SCORE)
 
 
 class SqlHelper(ISqlHelper):
-    params = {'ip': Proxy.ip, 'port': Proxy.port, 'types': Proxy.types, 'protocol': Proxy.protocol,
-              'country': Proxy.country, 'area': Proxy.area, 'score': Proxy.score}
+    # params = {'ip': Proxy.ip, 'port': Proxy.port, 'types': Proxy.types, 'protocol': Proxy.protocol,
+    #           'country': Proxy.country, 'area': Proxy.area, 'score': Proxy.score}
+
+    params = {'ip': mssProxy.ip, 'port': mssProxy.port, 'protocol': mssProxy.protocol, 'anonymous': mssProxy.anonymous,
+              'delay': mssProxy.delay, 'verifytime': mssProxy.verifytime,'score':mssProxy.score}
 
     def __init__(self):
         if 'sqlite' in DB_CONFIG['DB_CONNECT_STRING']:
@@ -49,14 +68,34 @@ class SqlHelper(ISqlHelper):
     def drop_db(self):
         BaseModel.metadata.drop_all(self.engine)
 
-
     def insert(self, value):
-        proxy = Proxy(ip=value['ip'], port=value['port'], types=value['types'], protocol=value['protocol'],
-                      country=value['country'],
-                      area=value['area'], speed=value['speed'])
+        """
+
+        :type value: object
+        """
+        # proxy = Proxy(ip=value['ip'], port=value['port'], types=value['types'], protocol=value['protocol'],
+        #               country=value['country'],
+        #               area=value['area'], speed=value['speed'])
+        protocol = 'http'
+        if value['protocol'] == 0:
+            protocol = 'http'
+        elif value['protocol'] == 1:
+            protocol = 'https'
+        elif value['protocol'] == 2:
+            protocol = 'http'
+        else:
+            protocol = 'SOCK5'
+
+        if value['types'] == 0:
+            types = '高匿'
+        else:
+            types = '普匿'
+
+        proxy = mssProxy(ip=value['ip'], port=value['port'],
+                         protocol=protocol, anonymous=types.decode('utf-8'),
+                         delay=value['speed'])
         self.session.add(proxy)
         self.session.commit()
-
 
     def delete(self, conditions=None):
         if conditions:
@@ -65,7 +104,7 @@ class SqlHelper(ISqlHelper):
                 if self.params.get(key, None):
                     conditon_list.append(self.params.get(key) == conditions.get(key))
             conditions = conditon_list
-            query = self.session.query(Proxy)
+            query = self.session.query(mssProxy)
             for condition in conditions:
                 query = query.filter(condition)
             deleteNum = query.delete()
@@ -73,7 +112,6 @@ class SqlHelper(ISqlHelper):
         else:
             deleteNum = 0
         return ('deleteNum', deleteNum)
-
 
     def update(self, conditions=None, value=None):
         '''
@@ -88,7 +126,7 @@ class SqlHelper(ISqlHelper):
                 if self.params.get(key, None):
                     conditon_list.append(self.params.get(key) == conditions.get(key))
             conditions = conditon_list
-            query = self.session.query(Proxy)
+            query = self.session.query(mssProxy)
             for condition in conditions:
                 query = query.filter(condition)
             updatevalue = {}
@@ -100,7 +138,6 @@ class SqlHelper(ISqlHelper):
         else:
             updateNum = 0
         return {'updateNum': updateNum}
-
 
     def select(self, count=None, conditions=None):
         '''
@@ -118,20 +155,19 @@ class SqlHelper(ISqlHelper):
         else:
             conditions = []
 
-        query = self.session.query(Proxy.ip, Proxy.port, Proxy.score)
+        query = self.session.query(mssProxy.ip, mssProxy.port, mssProxy.delay)
         if len(conditions) > 0 and count:
             for condition in conditions:
                 query = query.filter(condition)
-            return query.order_by(Proxy.score.desc(), Proxy.speed).limit(count).all()
+            return query.order_by(mssProxy.score.desc(), mssProxy.delay).limit(count).all()
         elif count:
-            return query.order_by(Proxy.score.desc(), Proxy.speed).limit(count).all()
+            return query.order_by(mssProxy.score.desc(), mssProxy.delay).limit(count).all()
         elif len(conditions) > 0:
             for condition in conditions:
                 query = query.filter(condition)
-            return query.order_by(Proxy.score.desc(), Proxy.speed).all()
+            return query.order_by(mssProxy.score.desc(), mssProxy.delay).all()
         else:
-            return query.order_by(Proxy.score.desc(), Proxy.speed).all()
-
+            return query.order_by(mssProxy.score.desc(), mssProxy.delay).all()
 
     def close(self):
         pass
@@ -140,8 +176,8 @@ class SqlHelper(ISqlHelper):
 if __name__ == '__main__':
     sqlhelper = SqlHelper()
     sqlhelper.init_db()
-    proxy = {'ip': '192.168.1.1', 'port': 80, 'type': 0, 'protocol': 0, 'country': '中国', 'area': '广州', 'speed': 11.123, 'types': ''}
-    sqlhelper.insert(proxy)
-    sqlhelper.update({'ip': '192.168.1.1', 'port': 80}, {'score': 10})
+    # proxy = {'ip': '192.168.1.1', 'port': 80, 'type': 0, 'protocol': 0, 'country': '中国', 'area': '广州', 'speed': 11.123,
+    #          'types': '高匿'}
+    # sqlhelper.insert(proxy)
+    sqlhelper.update({'ip': '192.168.1.1', 'port': 80}, {'score': 2})
     print(sqlhelper.select(1))
-

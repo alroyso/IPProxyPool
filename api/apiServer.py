@@ -7,7 +7,7 @@ import sys
 import web
 import config
 from db.DataStore import sqlhelper
-from db.SqlHelper import Proxy
+from db.SqlHelper import mssProxy
 
 urls = (
     '/', 'select',

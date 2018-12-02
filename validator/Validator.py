@@ -3,6 +3,7 @@ import sys
 
 import chardet
 from gevent import monkey
+
 monkey.patch_all()
 
 import json
@@ -29,17 +30,16 @@ def detect_from_db(myip, proxy, proxies_set):
         if proxy[2] < 1:
             sqlhelper.delete({'ip': proxy[0], 'port': proxy[1]})
         else:
-            score = proxy[2]-1
-            sqlhelper.update({'ip': proxy[0], 'port': proxy[1]}, {'score': score})
+            score = proxy[2] - 1
+            sqlhelper.update({'ip': proxy[0], 'port': proxy[1]}, {'score': score,'verifytime':time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))})
             proxy_str = '%s:%s' % (proxy[0], proxy[1])
             proxies_set.add(proxy_str)
 
 
-
 def validator(queue1, queue2, myip):
     tasklist = []
-    proc_pool = {}     # 所有进程列表
-    cntl_q = Queue()   # 控制信息队列
+    proc_pool = {}  # 所有进程列表
+    cntl_q = Queue()  # 控制信息队列
     while True:
         if not cntl_q.empty():
             # 处理已结束的进程
@@ -73,6 +73,7 @@ def validator(queue1, queue2, myip):
                 proc_pool[p.pid] = p
                 tasklist = []
 
+
 def process_start(tasks, myip, queue2, cntl):
     spawns = []
     for task in tasks:
@@ -89,7 +90,8 @@ def detect_proxy(selfip, proxy, queue2=None):
     ip = proxy['ip']
     port = proxy['port']
     proxies = {"http": "http://%s:%s" % (ip, port), "https": "http://%s:%s" % (ip, port)}
-    protocol, types, speed = getattr(sys.modules[__name__],config.CHECK_PROXY['function'])(selfip, proxies)#checkProxy(selfip, proxies)
+    protocol, types, speed = getattr(sys.modules[__name__], config.CHECK_PROXY['function'])(selfip,
+                                                                                            proxies)  # checkProxy(selfip, proxies)
     if protocol >= 0:
         proxy['protocol'] = protocol
         proxy['types'] = types
@@ -186,22 +188,24 @@ def baidu_check(selfip, proxies):
     #     return protocol, types, speed
     try:
         start = time.time()
-        r = requests.get(url='https://www.baidu.com', headers=config.get_header(), timeout=config.TIMEOUT, proxies=proxies)
+        r = requests.get(url='https://www.baidu.com', headers=config.get_header(), timeout=config.TIMEOUT,
+                         proxies=proxies)
         r.encoding = chardet.detect(r.content)['encoding']
         if r.ok:
             speed = round(time.time() - start, 2)
-            protocol= 0
-            types=0
+            protocol = 0
+            types = 0
 
         else:
             speed = -1
-            protocol= -1
-            types=-1
-    except Exception as e:
-            speed = -1
             protocol = -1
             types = -1
+    except Exception as e:
+        speed = -1
+        protocol = -1
+        types = -1
     return protocol, types, speed
+
 
 def getMyIP():
     try:
@@ -216,7 +220,7 @@ if __name__ == '__main__':
     ip = '222.186.161.132'
     port = 3128
     proxies = {"http": "http://%s:%s" % (ip, port), "https": "http://%s:%s" % (ip, port)}
-    _checkHttpProxy(None,proxies)
+    _checkHttpProxy(None, proxies)
     # getMyIP()
     # str="{ip:'61.150.43.121',address:'陕西省西安市 西安电子科技大学'}"
     # j = json.dumps(str)

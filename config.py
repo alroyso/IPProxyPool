@@ -14,18 +14,21 @@ ip，端口，类型(0高匿名，1透明)，protocol(0 http,1 https),country(�
 parserList = [
     {
         'urls': ['http://www.66ip.cn/%s.html' % n for n in ['index'] + list(range(2, 12))],
+        'cookie': True,
         'type': 'xpath',
         'pattern': ".//*[@id='main']/div/div[1]/table/tr[position()>1]",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': './td[4]', 'protocol': ''}
     },
     {
-        'urls': ['http://www.66ip.cn/areaindex_%s/%s.html' % (m, n) for m in range(1, 35) for n in range(1, 10)],
+        'urls': ['http://www.66ip.cn/areaindex_%s/%s.html' % (m, n) for m in range(1, 12) for n in range(1, 5)],
+        'cookie': True,
         'type': 'xpath',
         'pattern': ".//*[@id='footer']/div/table/tr[position()>1]",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': './td[4]', 'protocol': ''}
     },
     {
         'urls': ['http://cn-proxy.com/', 'http://cn-proxy.com/archives/218'],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//table[@class='sortable']/tbody/tr",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': '', 'protocol': ''}
@@ -33,6 +36,7 @@ parserList = [
     },
     {
         'urls': ['http://www.mimiip.com/gngao/%s' % n for n in range(1, 10)],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//table[@class='list']/tr",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': '', 'protocol': ''}
@@ -40,6 +44,7 @@ parserList = [
     },
     {
         'urls': ['https://proxy-list.org/english/index.php?p=%s' % n for n in range(1, 10)],
+        'cookie': False,
         'type': 'module',
         'moduleName': 'proxy_listPraser',
         'pattern': 'Proxy\(.+\)',
@@ -49,6 +54,7 @@ parserList = [
     {
         'urls': ['http://incloak.com/proxy-list/%s#list' % n for n in
                  ([''] + ['?start=%s' % (64 * m) for m in range(1, 10)])],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//table[@class='proxy__t']/tbody/tr",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': '', 'protocol': ''}
@@ -56,6 +62,7 @@ parserList = [
     },
     {
         'urls': ['http://www.kuaidaili.com/proxylist/%s/' % n for n in range(1, 11)],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//*[@id='index_free_list']/table/tbody/tr[position()>0]",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': './td[3]', 'protocol': './td[4]'}
@@ -63,6 +70,7 @@ parserList = [
     {
         'urls': ['http://www.kuaidaili.com/free/%s/%s/' % (m, n) for m in ['inha', 'intr', 'outha', 'outtr'] for n in
                  range(1, 11)],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//*[@id='list']/table/tbody/tr[position()>0]",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': './td[3]', 'protocol': './td[4]'}
@@ -70,6 +78,7 @@ parserList = [
     {
         'urls': ['http://www.cz88.net/proxy/%s' % m for m in
                  ['index.shtml'] + ['http_%s.shtml' % n for n in range(2, 11)]],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//*[@id='boxright']/div/ul/li[position()>1]",
         'position': {'ip': './div[1]', 'port': './div[2]', 'type': './div[3]', 'protocol': ''}
@@ -77,6 +86,7 @@ parserList = [
     },
     {
         'urls': ['http://www.ip181.com/daili/%s.html' % n for n in range(1, 11)],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//div[@class='row']/div[3]/table/tbody/tr[position()>1]",
         'position': {'ip': './td[1]', 'port': './td[2]', 'type': './td[3]', 'protocol': './td[4]'}
@@ -84,17 +94,44 @@ parserList = [
     },
     {
         'urls': ['http://www.xicidaili.com/%s/%s' % (m, n) for m in ['nn', 'nt', 'wn', 'wt'] for n in range(1, 8)],
+        'cookie': False,
         'type': 'xpath',
         'pattern': ".//*[@id='ip_list']/tr[position()>1]",
         'position': {'ip': './td[2]', 'port': './td[3]', 'type': './td[5]', 'protocol': './td[6]'}
     },
     {
         'urls': ['http://www.cnproxy.com/proxy%s.html' % i for i in range(1, 11)],
+        'cookie': False,
         'type': 'module',
         'moduleName': 'CnproxyPraser',
         'pattern': r'<tr><td>(\d+\.\d+\.\d+\.\d+)<SCRIPT type=text/javascript>document.write\(\"\:\"(.+)\)</SCRIPT></td><td>(HTTP|SOCKS4)\s*',
         'position': {'ip': 0, 'port': 1, 'type': -1, 'protocol': 2}
-    }
+    },
+    {
+        'urls': ['http://31f.cn/socks-proxy/'],
+        'cookie': False,
+        'type': 'xpath',
+        'pattern': ".//div[@class='container']/table[@class='table table-striped']/tbody/tr[position()>1]",
+        'position': {'ip': './td[2]', 'port': './td[3]', 'type': '高匿', 'protocol': '3'}
+
+    },
+    {
+        'urls': ['http://31f.cn/https-proxy/'],
+        'cookie': False,
+        'type': 'xpath',
+        'pattern': ".//div[@class='container']/table[@class='table table-striped']/tbody/tr[position()>1]",
+        'position': {'ip': './td[2]', 'port': './td[3]', 'type': '高匿', 'protocol': '2'}
+
+    },
+    {
+        'urls': ['http://www.89ip.cn/index_%s.html' % n for n in list(range(1, 11))],
+        'cookie': False,
+        'type': 'xpath',
+        'pattern': ".//div[@class='layui-form']/table/tbody/tr[position()>1]",
+        'position': {'ip': './td[1]', 'port': './td[2]', 'type': '', 'protocol': ''}
+
+    },
+
 ]
 '''
 数据库的配置
@@ -103,7 +140,8 @@ DB_CONFIG = {
 
     'DB_CONNECT_TYPE': 'sqlalchemy',  # 'pymongo'sqlalchemy;redis
     # 'DB_CONNECT_STRING':'mongodb://localhost:27017/'
-    'DB_CONNECT_STRING': 'sqlite:///' + os.path.dirname(__file__) + '/data/proxy.db'
+    #'DB_CONNECT_STRING': 'sqlite:///' + os.path.dirname(__file__) + '/data/proxy.db'
+    'DB_CONNECT_STRING': 'mssql+pymssql://jiudb:jiudb123@47.96.20.110:1435/jiuzhou?charset=utf8'
     # DB_CONNECT_STRING : 'mysql+mysqldb://root:root@localhost/proxy?charset=utf8'
 
     # 'DB_CONNECT_TYPE': 'redis',  # 'pymongo'sqlalchemy;redis
@@ -123,7 +161,7 @@ API_PORT = 8000
 不需要检测ip是否已经存在，因为会定时清理
 '''
 UPDATE_TIME = 30 * 60  # 每半个小时检测一次是否有代理ip失效
-MINNUM = 50  # 当有效的ip值小于一个时 需要启动爬虫进行爬取
+MINNUM = 10000  # 当有效的ip值小于一个时 需要启动爬虫进行爬取
 
 TIMEOUT = 5  # socket延时
 '''
@@ -183,26 +221,30 @@ def get_header():
         'Connection': 'keep-alive',
         'Accept-Encoding': 'gzip, deflate',
     }
-#默认给抓取的ip分配20分,每次连接失败,减一分,直到分数全部扣完从数据库中删除
-DEFAULT_SCORE=10
+
+
+# 默认给抓取的ip分配20分,每次连接失败,减一分,直到分数全部扣完从数据库中删除
+DEFAULT_SCORE = 10
 
 TEST_URL = 'http://ip.chinaz.com/getip.aspx'
 TEST_IP = 'http://httpbin.org/ip'
 TEST_HTTP_HEADER = 'http://httpbin.org/get'
 TEST_HTTPS_HEADER = 'https://httpbin.org/get'
-#CHECK_PROXY变量是为了用户自定义检测代理的函数
-#现在使用检测的网址是httpbin.org,但是即使ip通过了验证和检测
-#也只能说明通过此代理ip可以到达httpbin.org,但是不一定能到达用户爬取的网址
-#因此在这个地方用户可以自己添加检测函数,我以百度为访问网址尝试一下
-#大家可以看一下Validator.py文件中的baidu_check函数和detect_proxy函数就会明白
+# CHECK_PROXY变量是为了用户自定义检测代理的函数
+# 现在使用检测的网址是httpbin.org,但是即使ip通过了验证和检测
+# 也只能说明通过此代理ip可以到达httpbin.org,但是不一定能到达用户爬取的网址
+# 因此在这个地方用户可以自己添加检测函数,我以百度为访问网址尝试一下
+# 大家可以看一下Validator.py文件中的baidu_check函数和detect_proxy函数就会明白
 
-CHECK_PROXY={'function':'checkProxy'}#{'function':'baidu_check'}
+CHECK_PROXY = {'function': 'checkProxy'}  # {'function':'baidu_check'}
 
-#下面配置squid,现在还没实现
-#SQUID={'path':None,'confpath':'C:/squid/etc/squid.conf'}
+# 下面配置squid,现在还没实现
+# SQUID={'path':None,'confpath':'C:/squid/etc/squid.conf'}
 
-MAX_CHECK_PROCESS = 2 # CHECK_PROXY最大进程数
-MAX_CHECK_CONCURRENT_PER_PROCESS = 30 # CHECK_PROXY时每个进程的最大并发
-TASK_QUEUE_SIZE = 50 # 任务队列SIZE
-MAX_DOWNLOAD_CONCURRENT = 3 # 从免费代理网站下载时的最大并发 
-CHECK_WATI_TIME = 1#进程数达到上限时的等待时间
+MAX_CHECK_PROCESS = 2  # CHECK_PROXY最大进程数
+MAX_CHECK_CONCURRENT_PER_PROCESS = 30  # CHECK_PROXY时每个进程的最大并发
+TASK_QUEUE_SIZE = 50  # 任务队列SIZE
+MAX_DOWNLOAD_CONCURRENT = 3  # 从免费代理网站下载时的最大并发
+CHECK_WATI_TIME = 1  # 进程数达到上限时的等待时间
+
+_ydclearance = ''

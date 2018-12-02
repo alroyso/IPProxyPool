@@ -1,12 +1,13 @@
 # coding:utf-8
 import base64
+from lxml import etree
+
 from config import QQWRY_PATH, CHINA_AREA
 from util.IPAddress import IPAddresss
 import re
 from util.compatibility import text_
 
 __author__ = 'qiye'
-from lxml import etree
 
 
 class Html_Parser(object):
@@ -40,7 +41,6 @@ class Html_Parser(object):
                 return True
         return False
 
-
     def XpathPraser(self, response, parser):
         '''
         针对xpath方式进行解析
@@ -49,6 +49,7 @@ class Html_Parser(object):
         :return:
         '''
         proxylist = []
+
         root = etree.HTML(response)
         proxys = root.xpath(parser['pattern'])
         for proxy in proxys:
@@ -71,7 +72,8 @@ class Html_Parser(object):
             # updatetime = datetime.datetime.now()
             # ip，端口，类型(0高匿名，1透明)，protocol(0 http,1 https http),country(国家),area(省市),updatetime(更新时间)
 
-            # proxy ={'ip':ip,'port':int(port),'type':int(type),'protocol':int(protocol),'country':country,'area':area,'updatetime':updatetime,'speed':100}
+            # proxy ={'ip':ip,'port':int(port),'type':int(type),'protocol':int(protocol),'country':country,
+            # 'area':area,'updatetime':updatetime,'speed':100}
             proxy = {'ip': ip, 'port': int(port), 'types': int(type), 'protocol': int(protocol), 'country': country,
                      'area': area, 'speed': 100}
             proxylist.append(proxy)
@@ -121,7 +123,6 @@ class Html_Parser(object):
                 proxylist.append(proxy)
             return proxylist
 
-
     def CnproxyPraser(self, response, parser):
         proxylist = self.RegularPraser(response, parser)
         chardict = {'v': '3', 'm': '4', 'a': '2', 'l': '9', 'q': '0', 'b': '5', 'i': '7', 'w': '6', 'r': '8', 'c': '1'}
@@ -135,7 +136,6 @@ class Html_Parser(object):
             new_port = int(new_port)
             proxy['port'] = new_port
         return proxylist
-
 
     def proxy_listPraser(self, response, parser):
         proxylist = []
@@ -165,10 +165,3 @@ class Html_Parser(object):
                          'area': area, 'speed': 100}
                 proxylist.append(proxy)
             return proxylist
-
-
-
-
-
-
-
